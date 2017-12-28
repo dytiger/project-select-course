@@ -50,16 +50,16 @@
 <div id="dd" hidden>
     <form id="save-form" method="POST">
         <div>
-            <input class="easyui-textbox" id="save-name" data-options="iconCls:'icon-search'"/>
+            <input class="easyui-validatebox" id="save-name" data-options="required:true,validType:'length[6,15]',iconCls:'icon-search'"/>
         </div>
         <div>
-            <input class="easyui-textbox" id="save-teacher" data-options="iconCls:'icon-search'"/>
+            <input class="easyui-validatebox" id="save-teacher" data-options="required:true,iconCls:'icon-search'"/>
         </div>
         <div>
-            <input class="easyui-textbox" id="save-teachTime" data-options="iconCls:'icon-search'"/>
+            <input class="easyui-validatebox" id="save-teachTime" data-options="required:true,iconCls:'icon-search'"/>
         </div>
         <div>
-            <input class="easyui-textbox" id="save-credit" data-options="iconCls:'icon-search'"/>
+            <input class="easyui-validatebox" id="save-credit" data-options="required:true,validType:['min[3]','max[10]'],iconCls:'icon-search',invalidMessage:'学分取值应该在3~10之间'"/>
         </div>
     </form>
 </div>
@@ -71,6 +71,20 @@
 <script src="../js/jquery.easyui.min.js"></script>
 <script src="../js/easyui-lang-zh_CN.js"></script>
 <script>
+    $.extend($.fn.validatebox.defaults.rules, {
+        min: {
+            validator: function(value, param){
+                return value >= param[0];
+            },
+            message: '最小需要{0}'
+        },
+        max: {
+            validator: function(value, param){
+                return value <= param[0];
+            },
+            message: '最大需要{0}'
+        }
+    });
     function doSearch() {
         $('#tt').datagrid('load', {
             name: $('#cName').val(),
@@ -91,7 +105,7 @@
         $("#dd").dialog('open');
     }
 
-    function save() {
+    /*function save() {
         let course = {
             "name": $("#save-name").val(),
             "credit": $("#save-credit").val(),
@@ -109,6 +123,37 @@
         },function (xhr) {
             alert(xhr.responseText);
         });
+    }*/
+
+    function save() {
+        $('#save-form').form({
+            url: "save.do",
+            onSubmit: function (param) {
+                let flag = $(this).form('validate');
+                if(flag){
+                    let course = {
+                        "name": $("#save-name").val(),
+                        "credit": $("#save-credit").val(),
+                        "teacher": $("#save-teacher").val(),
+                        "teachTime": $("#save-teachTime").val()
+                    };
+                    $.ajax({
+                        url:"save.do",
+                        type:"POST",
+                        data:JSON.stringify(course),
+                        dataType:"json",
+                        contentType:"application/json"
+                    }).then(function (message) {
+                        alert(message.message);
+                        $("#save-form").get(0).reset();
+                        $("#dd").dialog('close');
+                    },function (xhr) {
+                        alert(xhr.responseText);
+                    });
+                }
+                return flag;
+            }
+        }).submit();
     }
 </script>
 </body>
