@@ -40,6 +40,8 @@
 </table>
 <div id="tb" style="padding:3px">
     <a href="#" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="openSaveDialog()">添加新课程</a>
+    <a href="#" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="">编辑</a>
+    <a href="#" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="">删除</a>
     <span>名称</span>
     <input id="cName" style="line-height:20px;border:1px solid #ccc">
     <span>学分</span>
@@ -71,6 +73,8 @@
 <script src="../js/jquery.easyui.min.js"></script>
 <script src="../js/easyui-lang-zh_CN.js"></script>
 <script>
+    let checkedIds = [];
+    let courses = [];
     $.extend($.fn.validatebox.defaults.rules, {
         min: {
             validator: function(value, param){
@@ -105,26 +109,6 @@
         $("#dd").dialog('open');
     }
 
-    /*function save() {
-        let course = {
-            "name": $("#save-name").val(),
-            "credit": $("#save-credit").val(),
-            "teacher": $("#save-teacher").val(),
-            "teachTime": $("#save-teachTime").val()
-        };
-        $.ajax({
-            url:"save.do",
-            type:"POST",
-            data:JSON.stringify(course),
-            dataType:"json",
-            contentType:"application/json"
-        }).then(function (message) {
-            alert(message.message);
-        },function (xhr) {
-            alert(xhr.responseText);
-        });
-    }*/
-
     function save() {
         $('#save-form').form({
             url: "save.do",
@@ -154,6 +138,47 @@
                 return flag;
             }
         }).submit();
+    }
+
+    $('#tt').datagrid({
+        onCheck: function (rowIndex,rowData) {
+            courses.push(rowData);
+            checkedIds.push(rowData.id);
+            console.log(JSON.stringify(courses));
+            console.log(JSON.stringify(checkedIds));
+        },
+        onUncheck: function (rowIndex,rowData) {
+            courses = $.grep(courses,function (v) {
+                return v.id!=rowData.id;
+            });
+            checkedIds = $.grep(checkedIds,function (v) {
+                return v!=rowData.id;
+            });
+            console.log(JSON.stringify(courses));
+            console.log(JSON.stringify(checkedIds));
+        },
+        onCheckAll:function (rows) {
+            console.log(rows.length);
+            courses = rows;
+            checkedIds = rows.map(function (v,i) {
+                return v.id;
+            });
+            console.log(JSON.stringify(courses));
+            console.log(JSON.stringify(checkedIds));
+        },
+        onUncheckAll:function (rows) {
+            courses = [];
+            checkedIds = [];
+            console.log(JSON.stringify(courses));
+            console.log(JSON.stringify(checkedIds));
+        }
+    });
+
+    function getChecked() {
+        let ids = $('#tt').datagrid('getChecked');
+        $.each(ids,function(i,d){
+            console.log(d);
+        });
     }
 </script>
 </body>

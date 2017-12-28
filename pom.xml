@@ -155,7 +155,7 @@
                 <configuration>
                     <!-- 定义数据库连接参数 -->
                     <driver>com.mysql.jdbc.Driver</driver>
-                    <url>jdbc:mysql://localhost:3306/books?characterEncoding=utf8&amp;useSSL=false</url>
+                    <url>jdbc:mysql://localhost:3306/test?characterEncoding=utf8&amp;useSSL=false</url>
                     <username>root</username>
                     <password>123456</password>
                 </configuration>
