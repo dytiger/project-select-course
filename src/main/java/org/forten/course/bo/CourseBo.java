@@ -1,8 +1,10 @@
 package org.forten.course.bo;
 
 import org.forten.HibernateDao;
+import org.forten.course.dto.ro.MessageForEasyUI;
 import org.forten.course.dto.ro.PagedRoForEasyUI;
 import org.forten.course.dto.vo.CourseForShow;
+import org.forten.course.entity.Course;
 import org.forten.dto.PageInfo;
 import org.forten.utils.common.StringUtil;
 import org.springframework.stereotype.Service;
@@ -62,5 +64,16 @@ public class CourseBo {
         List<CourseForShow> dataList = dao.findBy(hql,params,pageInfo.getFirst(),rows);
 
         return new PagedRoForEasyUI<>(dataList,count);
+    }
+
+    @Transactional
+    public MessageForEasyUI doSave(Course course){
+        try{
+            dao.save(course);
+            return new MessageForEasyUI(true,"保存成功");
+        }catch(Exception e){
+            e.printStackTrace();
+            return new MessageForEasyUI(false,"保存失败");
+        }
     }
 }

@@ -6,6 +6,11 @@
     <link rel="stylesheet" href="../css/easyui.css"/>
     <link rel="stylesheet" href="../css/icon.css"/>
     <link rel="stylesheet" href="../css/color.css"/>
+    <style>
+        input {
+            width: 10em;
+        }
+    </style>
 </head>
 <body>
 <!--
@@ -34,20 +39,75 @@
     </thead>
 </table>
 <div id="tb" style="padding:3px">
+    <a href="#" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="openSaveDialog()">添加新课程</a>
     <span>名称</span>
     <input id="cName" style="line-height:20px;border:1px solid #ccc">
     <span>学分</span>
     <input id="cCredit" style="line-height:20px;border:1px solid #ccc">
     <a href="#" class="easyui-linkbutton" plain="true" onclick="doSearch()">查询</a>
 </div>
+
+<div id="dd" hidden>
+    <form id="save-form" method="POST">
+        <div>
+            <input class="easyui-textbox" id="save-name" data-options="iconCls:'icon-search'"/>
+        </div>
+        <div>
+            <input class="easyui-textbox" id="save-teacher" data-options="iconCls:'icon-search'"/>
+        </div>
+        <div>
+            <input class="easyui-textbox" id="save-teachTime" data-options="iconCls:'icon-search'"/>
+        </div>
+        <div>
+            <input class="easyui-textbox" id="save-credit" data-options="iconCls:'icon-search'"/>
+        </div>
+    </form>
+</div>
+<div id="dd-buttons" hidden>
+    <a href="#" class="easyui-linkbutton" iconCls="icon-ok" onclick="save()">保存</a>
+    <a href="#" class="easyui-linkbutton" iconCls="icon-cancel" onclick="$('#dd').dialog('close')">取消</a>
+</div>
 <script src="../js/jquery-3.2.1.js"></script>
 <script src="../js/jquery.easyui.min.js"></script>
 <script src="../js/easyui-lang-zh_CN.js"></script>
 <script>
     function doSearch() {
-        $('#tt').datagrid('load',{
+        $('#tt').datagrid('load', {
             name: $('#cName').val(),
             credit: $('#cCredit').val()
+        });
+    }
+
+    function openSaveDialog() {
+        $('#dd').dialog({
+            title: "添加新课程",
+            width: 200,
+            height: 200,
+            closed: false,
+            cache: false,
+            modal: true,
+            buttons: "#dd-buttons"
+        });
+        $("#dd").dialog('open');
+    }
+
+    function save() {
+        let course = {
+            "name": $("#save-name").val(),
+            "credit": $("#save-credit").val(),
+            "teacher": $("#save-teacher").val(),
+            "teachTime": $("#save-teachTime").val()
+        };
+        $.ajax({
+            url:"save.do",
+            type:"POST",
+            data:JSON.stringify(course),
+            dataType:"json",
+            contentType:"application/json"
+        }).then(function (message) {
+            alert(message.message);
+        },function (xhr) {
+            alert(xhr.responseText);
         });
     }
 </script>

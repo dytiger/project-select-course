@@ -2,8 +2,10 @@ package org.forten.course.action;
 
 import org.forten.course.bo.CourseBo;
 import org.forten.course.dto.qo.AdminCourseQo;
+import org.forten.course.dto.ro.MessageForEasyUI;
 import org.forten.course.dto.ro.PagedRoForEasyUI;
 import org.forten.course.dto.vo.CourseForShow;
+import org.forten.course.entity.Course;
 import org.forten.dto.PagedRo;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -41,5 +43,11 @@ public class CourseAction {
     PagedRoForEasyUI<CourseForShow> list(@RequestParam(name="page",defaultValue = "1") int pageNo,
                              @RequestParam(name="rows",defaultValue = "3") int pageSize) {
         return bo.queryAll(pageNo,pageSize);
+    }
+
+    @RequestMapping("/admin/save")
+    public @ResponseBody
+    MessageForEasyUI save(@RequestBody Course course){
+        return bo.doSave(course);
     }
 }
