@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="war" name="forten2017ssharchetype:war">
+    <output-path>$PROJECT_DIR$/target</output-path>
+    <root id="archive" name="scs-1.0-SNAPSHOT.war">
+      <element id="artifact" artifact-name="forten2017ssharchetype:war exploded" />
+    </root>
+  </artifact>
+</component>

@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: org.forten:forten-core:1.0-SNAPSHOT">
+    <CLASSES>
+      <root url="jar://D:/repository/org/forten/forten-core/1.0-SNAPSHOT/forten-core-1.0-SNAPSHOT.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://D:/repository/org/forten/forten-core/1.0-SNAPSHOT/forten-core-1.0-SNAPSHOT-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://D:/repository/org/forten/forten-core/1.0-SNAPSHOT/forten-core-1.0-SNAPSHOT-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
