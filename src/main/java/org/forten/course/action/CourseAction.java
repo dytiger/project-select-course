@@ -6,6 +6,7 @@ import org.forten.course.dto.ro.MessageForEasyUI;
 import org.forten.course.dto.ro.PagedRoForEasyUI;
 import org.forten.course.dto.vo.CourseForShow;
 import org.forten.course.entity.Course;
+import org.forten.dto.Message;
 import org.forten.dto.PagedRo;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -49,5 +50,17 @@ public class CourseAction {
     public @ResponseBody
     MessageForEasyUI save(@RequestBody Course course){
         return bo.doSave(course);
+    }
+
+    @RequestMapping("/admin/delete")
+    public @ResponseBody
+    Message delete(@RequestBody int...ids){
+        return bo.doDelete(ids);
+    }
+
+    @RequestMapping("/admin/update")
+    public @ResponseBody
+    Message update(@RequestBody CourseForShow vo){
+        return bo.doUpdate(vo);
     }
 }

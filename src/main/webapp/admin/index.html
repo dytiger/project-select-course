@@ -6,6 +6,11 @@
     <link rel="stylesheet" href="../css/easyui.css"/>
     <link rel="stylesheet" href="../css/icon.css"/>
     <link rel="stylesheet" href="../css/color.css"/>
+    <style>
+        input {
+            width: 10em;
+        }
+    </style>
 </head>
 <body>
 <!--
@@ -34,21 +39,236 @@
     </thead>
 </table>
 <div id="tb" style="padding:3px">
+    <a href="#" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="openSaveDialog()">添加新课程</a>
+    <a href="#" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="openDeleteDialog()">删除</a>
+    <a href="#" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="openEditDialog()">修改</a>
     <span>名称</span>
     <input id="cName" style="line-height:20px;border:1px solid #ccc">
     <span>学分</span>
     <input id="cCredit" style="line-height:20px;border:1px solid #ccc">
     <a href="#" class="easyui-linkbutton" plain="true" onclick="doSearch()">查询</a>
 </div>
+
+<div id="dd" hidden>
+    <form id="save-form" method="POST">
+        <div>
+            <input class="easyui-validatebox" id="save-name"
+                   data-options="required:true,validType:'length[6,15]',iconCls:'icon-search'"/>
+        </div>
+        <div>
+            <input class="easyui-validatebox" id="save-teacher" data-options="required:true,iconCls:'icon-search'"/>
+        </div>
+        <div>
+            <input class="easyui-validatebox" id="save-teachTime" data-options="required:true,iconCls:'icon-search'"/>
+        </div>
+        <div>
+            <input class="easyui-validatebox" id="save-credit"
+                   data-options="required:true,validType:['min[3]','max[10]'],iconCls:'icon-search',invalidMessage:'学分取值应该在3~10之间'"/>
+        </div>
+    </form>
+</div>
+<div id="dd-buttons" hidden>
+    <a href="#" class="easyui-linkbutton" iconCls="icon-ok" onclick="save()">保存</a>
+    <a href="#" class="easyui-linkbutton" iconCls="icon-cancel" onclick="$('#dd').dialog('close')">取消</a>
+</div>
+
+<div id="edit-dialog" hidden>
+    <form id="update-form" method="POST">
+        <div>
+            <input id="edit-id" type="hidden"/>
+            <input class="easyui-validatebox" id="edit-name"
+                   data-options="required:true,validType:'length[6,15]',iconCls:'icon-search'"/>
+        </div>
+        <div>
+            <input class="easyui-validatebox" id="edit-teacher" data-options="required:true,iconCls:'icon-search'"/>
+        </div>
+        <div>
+            <input class="easyui-validatebox" id="edit-teachTime" data-options="required:true,iconCls:'icon-search'"/>
+        </div>
+        <div>
+            <input class="easyui-validatebox" id="edit-credit"
+                   data-options="required:true,validType:['min[3]','max[10]'],iconCls:'icon-search',invalidMessage:'学分取值应该在3~10之间'"/>
+        </div>
+    </form>
+</div>
+<div id="edit-buttons" hidden>
+    <a href="#" class="easyui-linkbutton" iconCls="icon-ok" onclick="update()">修改</a>
+    <a href="#" class="easyui-linkbutton" iconCls="icon-cancel" onclick="$('#edit-dialog').dialog('close')">取消</a>
+</div>
+
+<div id="delete-dialog" hidden>
+    是否真的确定要进行删除操作？
+</div>
+<div id="delete-buttons" hidden>
+    <a href="#" class="easyui-linkbutton" iconCls="icon-ok" onclick="deleteById();">确定</a>
+    <a href="#" class="easyui-linkbutton" iconCls="icon-cancel" onclick="$('#delete-dialog').dialog('close')">取消</a>
+</div>
+
 <script src="../js/jquery-3.2.1.js"></script>
 <script src="../js/jquery.easyui.min.js"></script>
 <script src="../js/easyui-lang-zh_CN.js"></script>
 <script>
+    let checkedIds = [];
+    $.extend($.fn.validatebox.defaults.rules, {
+        min: {
+            validator: function (value, param) {
+                return value >= param[0];
+            },
+            message: '最小需要{0}'
+        },
+        max: {
+            validator: function (value, param) {
+                return value <= param[0];
+            },
+            message: '最大需要{0}'
+        }
+    });
+
     function doSearch() {
-        $('#tt').datagrid('load',{
+        $('#tt').datagrid('load', {
             name: $('#cName').val(),
             credit: $('#cCredit').val()
         });
+    }
+
+    function openSaveDialog() {
+        $('#dd').dialog({
+            title: "添加新课程",
+            width: 200,
+            height: 200,
+            closed: false,
+            cache: false,
+            modal: true,
+            buttons: "#dd-buttons"
+        });
+        $("#dd").dialog('open');
+    }
+
+    function openDeleteDialog() {
+        $('#delete-dialog').dialog({
+            title: "删除确认",
+            width: 200,
+            height: 200,
+            closed: false,
+            cache: false,
+            modal: true,
+            buttons: "#delete-buttons"
+        });
+        $("#delete-dialog").dialog('open');
+    }
+
+    function save() {
+        $('#save-form').form({
+            url: "save.do",
+            onSubmit: function (param) {
+                let flag = $(this).form('validate');
+                if (flag) {
+                    let course = {
+                        "name": $("#save-name").val(),
+                        "credit": $("#save-credit").val(),
+                        "teacher": $("#save-teacher").val(),
+                        "teachTime": $("#save-teachTime").val()
+                    };
+                    $.ajax({
+                        url: "save.do",
+                        type: "POST",
+                        data: JSON.stringify(course),
+                        dataType: "json",
+                        contentType: "application/json"
+                    }).then(function (message) {
+                        alert(message.message);
+                        $("#save-form").get(0).reset();
+                        $("#dd").dialog('close');
+                    }, function (xhr) {
+                        alert(xhr.responseText);
+                    });
+                }
+                return flag;
+            }
+        }).submit();
+    }
+
+    $("#tt").datagrid({
+        onCheck: function (rowIndex, rowData) {
+            checkedIds.push(rowData.id);
+        },
+        onUncheck: function (rowIndex, rowData) {
+            checkedIds = $.grep(checkedIds, function (id) {
+                return id != rowData.id;
+            });
+        },
+        onCheckAll: function (rows) {
+            checkedIds = [];
+            checkedIds = rows.map(function (element, index) {
+                return element.id;
+            });
+        },
+        onUncheckAll: function (rows) {
+            checkedIds = [];
+        }
+    });
+
+    function deleteById() {
+        $.ajax({
+            url: "delete.do",
+            type: "POST",
+            data: JSON.stringify(checkedIds),
+            dataType: "json",
+            contentType: "application/json"
+        }).then(function (message) {
+            alert(message.msg);
+            $("#delete-dialog").dialog('close');
+        }, function (xhr) {
+            alert(xhr.responseText);
+        })
+    }
+
+    function openEditDialog() {
+        let course = $("#tt").datagrid('getSelected');
+
+        $("#edit-id").val(course.id);
+        $("#edit-name").val(course.name);
+        $("#edit-teacher").val(course.teacher);
+        $("#edit-teachTime").val(course.teachTime);
+        $("#edit-credit").val(course.credit);
+
+        let flag = $("#update-form").form('validate');
+
+        $('#edit-dialog').dialog({
+            title: "编辑课程信息",
+            width: 200,
+            height: 200,
+            closed: false,
+            cache: false,
+            modal: true,
+            buttons: "#edit-buttons"
+        });
+        $("#edit-dialog").dialog('open');
+    }
+
+    function update() {
+        let flag = $("#update-form").form('validate');
+        if (flag) {
+            let course = {
+                "id": $("#edit-id").val(),
+                "name": $("#edit-name").val(),
+                "teacher": $("#edit-teacher").val(),
+                "teachTime": $("#edit-teachTime").val(),
+                "credit": $("#edit-credit").val()
+            };
+            $.ajax({
+                url: "update.do",
+                type: "POST",
+                data: JSON.stringify(course),
+                dataType: "json",
+                contentType: "application/json"
+            }).then(function (message) {
+                alert(message.msg);
+                $("#edit-dialog").dialog('close');
+            }, function (xhr) {
+                alert(xhr.responseText);
+            });
+        }
     }
 </script>
 </body>
