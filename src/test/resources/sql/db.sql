@@ -2,6 +2,8 @@
 
 DROP TABLE IF EXISTS course;
 DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS rel_course_users;
+
 
 CREATE TABLE course
 (
@@ -18,6 +20,13 @@ CREATE TABLE users
 	name varchar(30) NOT NULL,
 	password varchar(36) NOT NULL,
 	level int(2) DEFAULT 0 NOT NULL
+);
+
+CREATE TABLE rel_course_users
+(
+	user_id int(11),
+	course_id int(11),
+	primary key (user_id,course_id)
 );
 
 INSERT INTO course VALUES
@@ -40,5 +49,32 @@ INSERT INTO users VALUES
 (6,'陈雅','1',0),
 (7,'李震','1',0);
 
+
+
+
+INSERT INTO rel_course_users VALUES
+(2,1),
+(2,8),
+(3,2),
+(3,3),
+(3,9),
+(3,7),
+(4,6),
+(4,5),
+(5,5),
+(5,1),
+(5,3),
+(6,1),
+(6,2),
+(6,3),
+(2,7),
+(2,3),
+(3,4),
+(7,1),
+(7,5),
+(7,6),
+(7,7),
+(7,8),
+(7,9);
 
 COMMIT;

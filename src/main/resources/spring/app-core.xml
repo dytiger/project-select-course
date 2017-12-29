@@ -56,7 +56,11 @@
 		<property name="hibernateProperties" ref="hibernateProperties" />
 		<property name="packagesToScan" ref="packagesToScanList" />
 	</bean>
-	
+
+	<bean id="jdbcDao" class="org.forten.JDBCDao">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+
 	<bean name="hiberanteDao" class="org.forten.HibernateDao">
 		<property name="sessionFactory" ref="sessionFactory" />
 	</bean>

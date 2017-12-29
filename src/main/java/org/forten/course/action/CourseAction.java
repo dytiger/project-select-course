@@ -5,6 +5,7 @@ import org.forten.course.dto.qo.AdminCourseQo;
 import org.forten.course.dto.ro.MessageForEasyUI;
 import org.forten.course.dto.ro.PagedRoForEasyUI;
 import org.forten.course.dto.vo.CourseForShow;
+import org.forten.course.dto.vo.SelectionInfo;
 import org.forten.course.entity.Course;
 import org.forten.dto.Message;
 import org.forten.dto.PagedRo;
@@ -25,8 +26,8 @@ public class CourseAction {
     @RequestMapping("/admin/list")
     public @ResponseBody
     PagedRoForEasyUI<CourseForShow> list(String name, @RequestParam(defaultValue = "0") int credit,
-                                         @RequestParam(name="page",defaultValue = "1") int pageNo,
-                                         @RequestParam(name="rows",defaultValue = "3") int pageSize) {
+                                         @RequestParam(name = "page", defaultValue = "1") int pageNo,
+                                         @RequestParam(name = "rows", defaultValue = "3") int pageSize) {
         return bo.queryBy(name, credit, pageNo, pageSize);
     }
 
@@ -41,26 +42,33 @@ public class CourseAction {
      */
     @RequestMapping("/admin/listAll")
     public @ResponseBody
-    PagedRoForEasyUI<CourseForShow> list(@RequestParam(name="page",defaultValue = "1") int pageNo,
-                             @RequestParam(name="rows",defaultValue = "3") int pageSize) {
-        return bo.queryAll(pageNo,pageSize);
+    PagedRoForEasyUI<CourseForShow> list(@RequestParam(name = "page", defaultValue = "1") int pageNo,
+                                         @RequestParam(name = "rows", defaultValue = "3") int pageSize) {
+        return bo.queryAll(pageNo, pageSize);
     }
 
     @RequestMapping("/admin/save")
     public @ResponseBody
-    MessageForEasyUI save(@RequestBody Course course){
+    MessageForEasyUI save(@RequestBody Course course) {
         return bo.doSave(course);
     }
 
     @RequestMapping("/admin/delete")
     public @ResponseBody
-    Message delete(@RequestBody int...ids){
+    Message delete(@RequestBody int... ids) {
         return bo.doDelete(ids);
     }
 
     @RequestMapping("/admin/update")
     public @ResponseBody
-    Message update(@RequestBody CourseForShow vo){
+    Message update(@RequestBody CourseForShow vo) {
         return bo.doUpdate(vo);
     }
+
+    @RequestMapping("/admin/getSelectionInfo")
+    public @ResponseBody
+    List<SelectionInfo> getSelectionInfo() {
+        return bo.querySelectionInfo();
+    }
+
 }

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="../css/easyui.css"/>
+    <link rel="stylesheet" href="../css/icon.css"/>
+    <link rel="stylesheet" href="../css/color.css"/>
+    <script src="../js/echarts.min.js"></script>
+</head>
+<body>
+<table id="dg"></table>
+<div id="pie-area" style="width: 600px;height:400px;"></div>
+<script src="../js/jquery-3.2.1.js"></script>
+<script src="../js/jquery.easyui.min.js"></script>
+<script src="../js/easyui-lang-zh_CN.js"></script>
+<script>
+    $('#dg').datagrid({
+        url:'getSelectionInfo.do',
+        title:"学生选课情况统计",
+        columns:[[
+            {field:'courseName',title:'课程',width:200},
+            {field:'names',title:'名单',width:500},
+            {field:'amount',title:'选课人数',width:200,align:'right'}
+        ]],
+        toolbar: [{
+            iconCls: 'icon-large-chart',
+            handler: function(){
+                let selectionArray = $("#dg").datagrid("getData").rows;
+                let datas = selectionArray.map(function (e,i) {
+                    return {"name":e.courseName,"value":e.amount};
+                });
+
+//                var myChart = echarts.init(document.getElementById('main'));
+                let myChart = echarts.init($("#pie-area").get(0));
+                let option = {
+                    backgroundColor: '#2c343c',
+
+                    title: {
+                        text: '课程受欢迎程度图表',
+                        left: 'center',
+                        top: 20,
+                        textStyle: {
+                            color: '#ccc'
+                        }
+                    },
+
+                    tooltip : {
+                        trigger: 'item',
+                        formatter: "{a} <br/>{b} : {c} ({d}%)"
+                    },
+
+                    /*visualMap: {
+                        show: false,
+                        min: 80,
+                        max: 600,
+                        inRange: {
+                            colorLightness: [0, 1]
+                        }
+                    },*/
+                    series : [
+                        {
+                            name:'选课人数',
+                            type:'pie',
+                            radius : '55%',
+                            center: ['50%', '50%'],
+                            data:datas,
+                            roseType: 'radius',
+                            label: {
+                                normal: {
+                                    textStyle: {
+                                        color: 'rgba(255, 255, 255, 0.3)'
+                                    }
+                                }
+                            },
+                            labelLine: {
+                                normal: {
+                                    lineStyle: {
+                                        color: 'rgba(255, 255, 255, 0.3)'
+                                    },
+                                    smooth: 0.2,
+                                    length: 10,
+                                    length2: 20
+                                }
+                            }/*,
+                            itemStyle: {
+                                normal: {
+                                    color: '#2b9dc2',
+                                    shadowBlur: 200,
+                                    shadowColor: 'rgba(0, 0, 0, 0.5)'
+                                }
+                            }*/,
+
+                            animationType: 'scale',
+                            animationEasing: 'elasticOut',
+                            animationDelay: function (idx) {
+                                return Math.random() * 200;
+                            }
+                        }
+                    ]
+                };
+                myChart.setOption(option);
+            }
+        }]
+    });
+</script>
+</body>
+</html>

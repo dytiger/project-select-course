@@ -1,18 +1,24 @@
 package org.forten.course.bo;
 
 import org.forten.HibernateDao;
+import org.forten.JDBCDao;
 import org.forten.course.dto.ro.MessageForEasyUI;
 import org.forten.course.dto.ro.PagedRoForEasyUI;
 import org.forten.course.dto.vo.CourseForShow;
+import org.forten.course.dto.vo.SelectionInfo;
 import org.forten.course.entity.Course;
 import org.forten.dto.Message;
 import org.forten.dto.PageInfo;
 import org.forten.utils.common.StringUtil;
 import org.springframework.beans.BeanUtils;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -22,6 +28,8 @@ import java.util.Map;
 public class CourseBo {
     @Resource
     private HibernateDao dao;
+    @Resource
+    private JDBCDao jdbcDao;
 
     @Transactional
     public PagedRoForEasyUI<CourseForShow> queryAll(int pageNo, int pageSize) {
@@ -102,5 +110,33 @@ public class CourseBo {
             e.printStackTrace();
             return Message.error("数据更新失败");
         }
+    }
+
+    @Transactional
+    public List<SelectionInfo> querySelectionInfo(){
+        String sql = "SELECT r.course_id c_id,c.name c_name,count(r.user_id) count_user FROM rel_course_users r JOIN course c ON (r.course_id=c.id) GROUP BY r.course_id";
+        List<SelectionInfo> list = jdbcDao.query(sql, new RowMapper<SelectionInfo>() {
+            @Nullable
+            @Override
+            public SelectionInfo mapRow(ResultSet rs, int rowNum) throws SQLException {
+                SelectionInfo si = new SelectionInfo();
+                si.setCourseId(rs.getInt("c_id"));
+                si.setCourseName(rs.getString("c_name"));
+                si.setAmount(rs.getInt("count_user"));
+                return si;
+            }
+        });
+
+        sql = "SELECT u.name user_name FROM rel_course_users r JOIN users u ON (r.user_id=u.id) WHERE r.course_id=:cId";
+        Map<String,Object> params = new HashMap<>(1);
+        for (SelectionInfo si:list){
+            params.put("cId",si.getCourseId());
+            List<String> nameList = jdbcDao.query(sql,params,(rs,rowNum)->{
+                return rs.getString("user_name");
+            });
+            si.setNameList(nameList);
+        }
+
+        return list;
     }
 }
