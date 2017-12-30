@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import javax.swing.text.html.ObjectView;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -138,5 +139,86 @@ public class CourseBo {
         }
 
         return list;
+    }
+
+    @Transactional(readOnly = true)
+    public List<CourseForShow> querySelectedCourse(int userId){
+        String sql = "SELECT c.id,c.name,c.teacher,c.teach_time,c.credit " +
+                "FROM course c JOIN rel_course_users r " +
+                "ON (c.id=r.course_id) " +
+                "WHERE r.user_id=:userId";
+        Map<String,Object> params = new HashMap<>(1);
+        params.put("userId",userId);
+        List<CourseForShow> list = mapRsToCourseForShow(sql,params);
+
+        return list;
+    }
+
+    @Transactional(readOnly = true)
+    public List<CourseForShow> queryNotSelectedCourse(int userId){
+        String sql = "SELECT c.id,c.name,c.teacher,c.teach_time,c.credit " +
+                "FROM course c " +
+                "WHERE c.id NOT IN " +
+                "(SELECT r.course_id FROM rel_course_users r WHERE r.user_id=:userId)";
+        Map<String,Object> params = new HashMap<>(1);
+        params.put("userId",userId);
+        List<CourseForShow> list = mapRsToCourseForShow(sql,params);
+
+        return list;
+    }
+
+    private List<CourseForShow> mapRsToCourseForShow(String sql,Map<String ,Object> params){
+        return jdbcDao.query(sql,params,(rs,rowNum)->{
+            CourseForShow vo = new CourseForShow();
+            // 把查询出的数据结果集合ResultSet(rs)映射成CourseForShow
+            vo.setCredit(rs.getInt("credit"));
+            vo.setId(rs.getInt("id"));
+            vo.setTeacher(rs.getString("teacher"));
+            vo.setTeachTime(rs.getString("teach_time"));
+            vo.setName(rs.getString("name"));
+
+            return vo;
+        });
+    }
+
+    @Transactional
+    public Message doSelect(int userId,int... courseIds){
+        String sql = "INSERT INTO rel_course_users (user_id,course_id) VALUES (:userId,:courseId)";
+        Map<String ,Object> params = new HashMap<>(2);
+        params.put("userId",userId);
+        int result = 0;
+        try {
+            for (int courseId : courseIds) {
+                params.put("courseId", courseId);
+                jdbcDao.executeUpdate(sql, params);
+                result++;
+            }
+
+            return Message.info("成功选择了"+result+"门课程");
+        }catch(Exception e){
+            e.printStackTrace();
+            return Message.error("选课失败");
+        }
+    }
+
+    @Transactional
+    public Message doCancel(int userId,int... courseIds){
+        String sql = "DELETE FROM rel_course_users WHERE user_id=:userId AND course_id=:courseId";
+        Map<String ,Object> params = new HashMap<>(2);
+        params.put("userId",userId);
+        int result = 0;
+        try {
+            for (int courseId : courseIds) {
+                params.put("courseId", courseId);
+                jdbcDao.executeUpdate(sql, params);
+
+                result++;
+            }
+
+            return Message.info("成功退选了"+result+"门课程");
+        }catch(Exception e){
+            e.printStackTrace();
+            return Message.error("退课失败");
+        }
     }
 }

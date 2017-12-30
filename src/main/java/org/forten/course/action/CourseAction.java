@@ -71,4 +71,33 @@ public class CourseAction {
         return bo.querySelectionInfo();
     }
 
+    @RequestMapping("/listSelected")
+    public @ResponseBody
+    List<CourseForShow> listSelected(){
+        // TODO 日后userId的值应该从session中得
+        int userId = 2;
+        return bo.querySelectedCourse(userId);
+    }
+
+    @RequestMapping("/listNotSelected")
+    public @ResponseBody
+    List<CourseForShow> listNotSelected(){
+        // TODO 日后userId的值应该从session中得
+        int userId = 2;
+        return bo.queryNotSelectedCourse(userId);
+    }
+
+    @RequestMapping("/select")
+    public @ResponseBody Message select(@RequestBody int... courseIds){
+        // TODO 日后userId的值应该从session中得
+        int userId = 2;
+        return bo.doSelect(userId,courseIds);
+    }
+
+    @RequestMapping("/cancel")
+    public @ResponseBody Message cancel(@RequestBody int... courseIds){
+        // TODO 日后userId的值应该从session中得
+        int userId = 2;
+        return bo.doCancel(userId,courseIds);
+    }
 }

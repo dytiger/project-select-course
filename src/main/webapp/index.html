@@ -3,17 +3,126 @@
 <head>
     <meta charset="UTF-8">
     <title>首页</title>
-    <link rel="stylesheet" href="css/bootstrap.css" />
-    <link rel="stylesheet" href="css/jquery-ui.css" />
-    <link rel="stylesheet" href="css/easyui.css" />
-    <link rel="stylesheet" href="css/color.css" />
-    <link rel="stylesheet" href="css/icon.css" />
+    <link rel="stylesheet" href="css/bootstrap.css"/>
+    <link rel="stylesheet" href="css/jquery-ui.css"/>
+    <link rel="stylesheet" href="css/easyui.css"/>
+    <link rel="stylesheet" href="css/color.css"/>
+    <link rel="stylesheet" href="css/icon.css"/>
 </head>
 <body>
-
+<div class="easyui-tabs">
+    <div title="选课" style="padding:10px">
+        <table id="selected-dg"></table>
+    </div>
+    <div title="退课" style="padding:10px">
+        <table id="cancel-selected-dg"></table>
+    </div>
+</div>
 <script src="js/jquery-3.2.1.js"></script>
 <script src="js/bootstrap.js"></script>
 <script src="js/jquery-ui.js"></script>
 <script src="js/jquery.easyui.min.js"></script>
+<script>
+    let selectCheckedIds = [];
+    let cancelCheckedIds = [];
+    let sdg = $('#selected-dg').datagrid({
+        url: 'listNotSelected.do',
+        columns: [[
+            {field: 'id', title: 'ID', width: 100, checkbox: true},
+            {field: 'name', title: '课程名称', width: 200},
+            {field: 'teachTime', title: '上课时间', width: 200},
+            {field: 'teacher', title: '任课教师', width: 200},
+            {field: 'credit', title: '学分', width: 100}
+        ]],
+        toolbar: [{
+            iconCls: 'icon-ok',
+            text:"选课",
+            handler: function () {
+                $.ajax({
+                    url:"select.do",
+                    type:"POST",
+                    data:JSON.stringify(selectCheckedIds),
+                    dataType:"json",
+                    contentType:"application/json"
+                }).then(function (message) {
+                    selectCheckedIds = [];
+                    $('#selected-dg').datagrid('reload');
+                    $('#cancel-selected-dg').datagrid('reload');
+                    alert(message.msg);
+                },function (xhr) {
+                    alert(xhr.responseText);
+                });
+            }
+        }]
+    });
+    let cdg = $('#cancel-selected-dg').datagrid({
+        url: 'listSelected.do',
+        columns: [[
+            {field: 'id', title: 'ID', width: 100, checkbox: true},
+            {field: 'name', title: '课程名称', width: 200},
+            {field: 'teachTime', title: '上课时间', width: 200},
+            {field: 'teacher', title: '任课教师', width: 200},
+            {field: 'credit', title: '学分', width: 100}
+        ]],
+        toolbar: [{
+            iconCls: 'icon-cancel',
+            text:"退课",
+            handler: function () {
+                $.ajax({
+                    url:"cancel.do",
+                    type:"POST",
+                    data:JSON.stringify(cancelCheckedIds),
+                    dataType:"json",
+                    contentType:"application/json"
+                }).then(function (message) {
+                    cancelCheckedIds = [];
+                    $('#selected-dg').datagrid('reload');
+                    $('#cancel-selected-dg').datagrid('reload');
+                    alert(message.msg);
+                },function (xhr) {
+                    alert(xhr.responseText);
+                });
+            }
+        }]
+    });
+    $("#selected-dg").datagrid({
+        onCheck: function (rowIndex, rowData) {
+            selectCheckedIds.push(rowData.id);
+        },
+        onUncheck: function (rowIndex, rowData) {
+            selectCheckedIds = $.grep(selectCheckedIds, function (id) {
+                return id != rowData.id;
+            });
+        },
+        onCheckAll: function (rows) {
+            selectCheckedIds = [];
+            selectCheckedIds = rows.map(function (element, index) {
+                return element.id;
+            });
+        },
+        onUncheckAll: function (rows) {
+            selectCheckedIds = [];
+        }
+    });
+    $("#cancel-selected-dg").datagrid({
+        onCheck: function (rowIndex, rowData) {
+            cancelCheckedIds.push(rowData.id);
+        },
+        onUncheck: function (rowIndex, rowData) {
+            cancelCheckedIds = $.grep(cancelCheckedIds, function (id) {
+                return id != rowData.id;
+            });
+        },
+        onCheckAll: function (rows) {
+            cancelCheckedIds = [];
+            cancelCheckedIds = rows.map(function (element, index) {
+                return element.id;
+            });
+        },
+        onUncheckAll: function (rows) {
+            cancelCheckedIds = [];
+        }
+    });
+</script>
 </body>
 </html>
