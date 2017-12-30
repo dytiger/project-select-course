@@ -114,6 +114,7 @@ public class CourseBo {
 
     @Transactional
     public List<SelectionInfo> querySelectionInfo(){
+        // 按课程分组统计选课人数，可以得到课程的ID、名称及选课人数，但不能得到选课人的名单
         String sql = "SELECT r.course_id c_id,c.name c_name,count(r.user_id) count_user FROM rel_course_users r JOIN course c ON (r.course_id=c.id) GROUP BY r.course_id";
         List<SelectionInfo> list = jdbcDao.query(sql, new RowMapper<SelectionInfo>() {
             @Nullable
@@ -127,13 +128,12 @@ public class CourseBo {
             }
         });
 
+        // 按照课程ID分别进行每门课程已选学生名单的查询
         sql = "SELECT u.name user_name FROM rel_course_users r JOIN users u ON (r.user_id=u.id) WHERE r.course_id=:cId";
         Map<String,Object> params = new HashMap<>(1);
         for (SelectionInfo si:list){
             params.put("cId",si.getCourseId());
-            List<String> nameList = jdbcDao.query(sql,params,(rs,rowNum)->{
-                return rs.getString("user_name");
-            });
+            List<String> nameList = jdbcDao.query(sql,params,(rs,rowNum)->rs.getString("user_name"));
             si.setNameList(nameList);
         }
 

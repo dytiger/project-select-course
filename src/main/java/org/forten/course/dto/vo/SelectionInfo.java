@@ -1,9 +1,9 @@
 package org.forten.course.dto.vo;
 
 import org.forten.utils.collection.CollectionUtil;
+import org.forten.utils.common.StringUtil;
 
 import java.util.List;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public class SelectionInfo {
@@ -59,7 +59,8 @@ public class SelectionInfo {
         if(CollectionUtil.isEmpty(nameList)){
             s = "";
         }else{
-            s = nameList.stream().collect(Collectors.joining("、"));
+//            s = nameList.stream().collect(Collectors.joining("、"));
+            s = StringUtil.join(nameList,"、");
         }
         return s;
     }
